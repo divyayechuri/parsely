@@ -1,0 +1,54 @@
+# Environment & Secrets — NEVER commit credentials
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Testing & Coverage
+.pytest_cache/
+htmlcov/
+.coverage
+.coverage.*
+
+# dbt
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+
+# Airflow
+airflow/logs/
+airflow/airflow.db
+airflow/airflow-webserver.pid
+
+# Great Expectations
+great_expectations/uncommitted/
+
+# Jupyter Notebooks (if used)
+.ipynb_checkpoints/
+
+# Personal reference docs — not for GitHub
+project_planning.md
+
+# Claude Code config
+.claude/

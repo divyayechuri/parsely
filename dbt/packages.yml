@@ -1,0 +1,14 @@
+# ─────────────────────────────────────────────────────
+# dbt Packages
+# ─────────────────────────────────────────────────────
+# dbt_utils provides reusable macros like:
+#   - generate_surrogate_key: creates consistent hash keys
+#   - star: selects all columns except specified ones
+#   - accepted_values: test helper
+#
+# Install with: dbt deps
+# ─────────────────────────────────────────────────────
+
+packages:
+  - package: dbt-labs/dbt_utils
+    version: [">=1.0.0", "<2.0.0"]

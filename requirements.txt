@@ -1,0 +1,37 @@
+# ── Document Parsing ──────────────────────────────────
+pdfplumber              # Extract text and tables from PDFs
+python-docx             # Parse Word documents (V2)
+Pillow                  # Image processing for OCR support (V2)
+
+# ── Field Extraction ─────────────────────────────────
+spacy                   # NLP — Named Entity Recognition (dates, amounts, orgs)
+pydantic                # Data validation and typed schemas for extracted fields
+
+# ── Data Processing ──────────────────────────────────
+pandas                  # Tabular data manipulation
+polars                  # High-performance alternative to pandas
+
+# ── Cloud Connections ────────────────────────────────
+snowflake-connector-python   # Connect and load data to Snowflake
+databricks-sql-connector     # Connect and load data to Databricks
+
+# ── dbt ──────────────────────────────────────────────
+dbt-core                # SQL transformation framework
+dbt-snowflake           # dbt adapter for Snowflake
+
+# ── Orchestration ────────────────────────────────────
+apache-airflow          # Pipeline scheduling and orchestration
+
+# ── Data Quality ─────────────────────────────────────
+great-expectations      # Data validation and quality checks
+
+# ── Web App ──────────────────────────────────────────
+streamlit               # Frontend — document upload, auto-fill form, summary
+
+# ── Testing ──────────────────────────────────────────
+pytest                  # Unit and integration testing
+pytest-cov              # Test coverage reporting
+
+# ── Utilities ────────────────────────────────────────
+python-dotenv           # Load environment variables from .env file
+structlog               # Structured logging for pipeline observability

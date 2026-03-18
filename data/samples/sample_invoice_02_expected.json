@@ -1,0 +1,59 @@
+{
+  "invoice_number": "INV-2026-002",
+  "invoice_date": "2026-02-03",
+  "due_date": "2026-03-05",
+  "po_number": "PO-EDU-2026-112",
+  "vendor": {
+    "name": "Summit IT Solutions LLC",
+    "address": "1500 Technology Park Dr, Suite 200",
+    "city": "Austin",
+    "state": "TX",
+    "zip": "78759",
+    "phone": "(512) 555-0198",
+    "email": "accounts@summitit.example.com"
+  },
+  "bill_to": {
+    "name": "Riverside County School District",
+    "address": "3900 Education Way",
+    "city": "Riverside",
+    "state": "CA",
+    "zip": "92501"
+  },
+  "line_items": [
+    {
+      "description": "Dell Latitude 5540 Laptop",
+      "quantity": 15,
+      "unit_price": 1149.0,
+      "amount": 17235.0
+    },
+    {
+      "description": "Logitech MK545 Keyboard & Mouse Combo",
+      "quantity": 15,
+      "unit_price": 49.99,
+      "amount": 749.85
+    },
+    {
+      "description": "24-inch Dell Monitor P2423D",
+      "quantity": 15,
+      "unit_price": 279.99,
+      "amount": 4199.85
+    },
+    {
+      "description": "USB-C Docking Station",
+      "quantity": 15,
+      "unit_price": 189.0,
+      "amount": 2835.0
+    },
+    {
+      "description": "On-Site Setup & Configuration (per unit)",
+      "quantity": 15,
+      "unit_price": 75.0,
+      "amount": 1125.0
+    }
+  ],
+  "subtotal": 26144.7,
+  "tax_rate": 0.0825,
+  "tax_amount": 2156.94,
+  "total_amount": 28301.64,
+  "currency": "USD"
+}

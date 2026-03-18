@@ -1,0 +1,44 @@
+# ─────────────────────────────────────────────────────
+# Source Definitions
+# ─────────────────────────────────────────────────────
+# Sources tell dbt where the raw data lives in Snowflake.
+# This creates a dependency link — if source data changes,
+# dbt knows which models are affected.
+#
+# These map to the Silver layer tables loaded by the
+# Databricks/Snowflake loaders in the Python pipeline.
+# ─────────────────────────────────────────────────────
+
+version: 2
+
+sources:
+  - name: silver
+    database: parsely
+    schema: silver
+    description: "Cleaned and validated data from the parsing pipeline"
+
+    tables:
+      - name: parsed_invoices
+        description: "Invoice header data — one row per document"
+        columns:
+          - name: document_id
+            description: "UUID assigned at ingestion (primary key)"
+            tests:
+              - unique
+              - not_null
+
+      - name: parsed_line_items
+        description: "Invoice line items — one row per item per document"
+        columns:
+          - name: line_item_id
+            description: "UUID for each line item (primary key)"
+            tests:
+              - unique
+              - not_null
+          - name: document_id
+            description: "FK to parsed_invoices"
+            tests:
+              - not_null
+              - relationships:
+                  to: source('silver', 'parsed_invoices')
+                  field: document_id

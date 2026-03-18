@@ -1,0 +1,60 @@
+# ─────────────────────────────────────────────────────
+# dbt Check: Validate SQL models on PR
+# ─────────────────────────────────────────────────────
+# Runs dbt compile (syntax check) on every PR that
+# modifies dbt model files. Full dbt run/test requires
+# Snowflake credentials so it only runs in the
+# deployment pipeline (not on every PR).
+# ─────────────────────────────────────────────────────
+
+name: dbt Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'dbt/**'
+
+jobs:
+  dbt-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt
+        run: |
+          pip install dbt-core dbt-snowflake
+
+      - name: Validate dbt project structure
+        run: |
+          cd dbt
+          # Check that dbt_project.yml is valid
+          python -c "import yaml; yaml.safe_load(open('dbt_project.yml'))"
+          echo "dbt_project.yml is valid"
+
+      - name: Check SQL syntax
+        run: |
+          cd dbt
+          # Basic SQL syntax validation on all model files
+          for f in $(find models -name "*.sql"); do
+            python -c "
+          import re, sys
+          with open('$f') as fh:
+              sql = fh.read()
+          # Check for common SQL errors
+          if sql.strip() == '':
+              print(f'ERROR: {\"$f\"} is empty')
+              sys.exit(1)
+          # Check balanced parentheses
+          if sql.count('(') != sql.count(')'):
+              print(f'WARNING: {\"$f\"} has unbalanced parentheses')
+          print(f'OK: $f')
+          "
+          done

@@ -1,0 +1,53 @@
+# ─────────────────────────────────────────────────────
+# Staging Model Documentation & Tests
+# ─────────────────────────────────────────────────────
+# Each staging model gets:
+#   - A description (shows in dbt docs)
+#   - Column-level documentation
+#   - Schema tests (unique, not_null, accepted_values)
+# ─────────────────────────────────────────────────────
+
+version: 2
+
+models:
+  - name: stg_parsed_invoices
+    description: >
+      Staging layer for parsed invoice headers. One row per document.
+      Renames columns to a consistent convention and casts types.
+    columns:
+      - name: document_id
+        description: "UUID from ingestion"
+        tests:
+          - unique
+          - not_null
+      - name: invoice_number
+        description: "Invoice identifier from the document"
+      - name: vendor_name
+        description: "Extracted vendor/supplier name"
+        tests:
+          - not_null
+      - name: total_amount
+        description: "Total invoice amount including tax"
+        tests:
+          - not_null
+      - name: validation_status
+        description: "Outcome of data quality validation"
+        tests:
+          - accepted_values:
+              values: ['passed', 'failed', 'review_needed']
+
+  - name: stg_parsed_line_items
+    description: >
+      Staging layer for invoice line items. One row per line item.
+    columns:
+      - name: line_item_id
+        description: "UUID for each line item"
+        tests:
+          - unique
+          - not_null
+      - name: document_id
+        description: "FK to stg_parsed_invoices"
+        tests:
+          - not_null
+      - name: line_amount
+        description: "Calculated line total (quantity * unit_price)"

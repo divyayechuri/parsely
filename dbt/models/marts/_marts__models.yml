@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: dim_vendors
+    description: >
+      Vendor dimension table. One row per unique vendor.
+      Contains standardized vendor info and aggregate stats.
+      Used to answer: "Who are our vendors? How often do they invoice us?"
+    columns:
+      - name: vendor_key
+        description: "Surrogate key (auto-increment)"
+        tests:
+          - unique
+          - not_null
+      - name: vendor_id
+        description: "Business key (hash of name + address)"
+        tests:
+          - unique
+          - not_null
+      - name: vendor_name
+        tests:
+          - not_null
+
+  - name: dim_documents
+    description: >
+      Document dimension table. One row per parsed invoice.
+      Contains invoice header info (number, dates, PO, totals).
+      Used to answer: "What invoices have we processed? What's their status?"
+    columns:
+      - name: document_key
+        description: "Surrogate key (auto-increment)"
+        tests:
+          - unique
+          - not_null
+      - name: document_id
+        description: "Business key (UUID from ingestion)"
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_invoice_line_items
+    description: >
+      Fact table at line-item grain. One row per line item per invoice.
+      Contains quantities, prices, and amounts for each item.
+      Used to answer: "What items were purchased? At what price?"
+    columns:
+      - name: line_item_key
+        description: "Surrogate key"
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_invoice_summary
+    description: >
+      Fact table at invoice grain. One row per invoice with aggregated
+      financial metrics. Used for dashboards and high-level reporting.
+      Used to answer: "What's the total spend per vendor? Average invoice size?"
+    columns:
+      - name: summary_key
+        description: "Surrogate key"
+        tests:
+          - unique
+          - not_null

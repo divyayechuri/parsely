@@ -1,0 +1,40 @@
+
+============================================================
+                        INVOICE
+============================================================
+
+Precision Industrial Parts Inc.
+8800 Manufacturing Row
+Detroit, MI 48204
+Phone: (313) 555-0276
+Email: invoices@precisionparts.example.com
+
+────────────────────────────────────────────────────────────
+
+Bill To:
+State of Michigan - Dept of Transportation
+425 W Ottawa St
+Lansing, MI 48933
+
+Invoice Number:  INV-2026-003
+Invoice Date:    2026-03-10
+Due Date:        2026-04-09
+PO Number:       MDOT-2026-03-0087
+
+────────────────────────────────────────────────────────────
+Description                           Qty   Unit Price       Amount
+────────────────────────────────────────────────────────────
+Steel Guardrail Section - 12ft        200       145.00    29,000.00
+Guardrail Post - Galvanized Steel     400        38.50    15,400.00
+Reflective Road Marker - Amber       1000         4.75     4,750.00
+Bolt Kit - Guardrail Assembly         200        12.00     2,400.00
+Delivery & Freight (flatbed)            1     2,500.00     2,500.00
+────────────────────────────────────────────────────────────
+Subtotal:                                                 54,050.00
+Tax (6.0%):                                                3,243.00
+════════════════════════════════════════════════════════════
+TOTAL DUE:                                                57,293.00
+════════════════════════════════════════════════════════════
+
+Payment Terms: Net 30
+Thank you for your business!

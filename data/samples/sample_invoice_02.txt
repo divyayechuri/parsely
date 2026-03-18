@@ -1,0 +1,40 @@
+
+============================================================
+                        INVOICE
+============================================================
+
+Summit IT Solutions LLC
+1500 Technology Park Dr, Suite 200
+Austin, TX 78759
+Phone: (512) 555-0198
+Email: accounts@summitit.example.com
+
+────────────────────────────────────────────────────────────
+
+Bill To:
+Riverside County School District
+3900 Education Way
+Riverside, CA 92501
+
+Invoice Number:  INV-2026-002
+Invoice Date:    2026-02-03
+Due Date:        2026-03-05
+PO Number:       PO-EDU-2026-112
+
+────────────────────────────────────────────────────────────
+Description                           Qty   Unit Price       Amount
+────────────────────────────────────────────────────────────
+Dell Latitude 5540 Laptop              15     1,149.00    17,235.00
+Logitech MK545 Keyboard & Mouse Combo    15        49.99       749.85
+24-inch Dell Monitor P2423D            15       279.99     4,199.85
+USB-C Docking Station                  15       189.00     2,835.00
+On-Site Setup & Configuration (per unit)    15        75.00     1,125.00
+────────────────────────────────────────────────────────────
+Subtotal:                                                 26,144.70
+Tax (8.2%):                                                2,156.94
+════════════════════════════════════════════════════════════
+TOTAL DUE:                                                28,301.64
+════════════════════════════════════════════════════════════
+
+Payment Terms: Net 30
+Thank you for your business!

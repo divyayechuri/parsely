@@ -1,0 +1,71 @@
+# ─────────────────────────────────────────────────────
+# Parsely Docker Compose
+# ─────────────────────────────────────────────────────
+# Starts all services with one command:
+#   docker-compose up -d
+#
+# Services:
+#   - parsely-app: Streamlit web app (port 8501)
+#   - airflow-webserver: Airflow UI (port 8080)
+#   - airflow-scheduler: Airflow task scheduler
+# ─────────────────────────────────────────────────────
+
+version: '3.8'
+
+x-airflow-common: &airflow-common
+  image: apache/airflow:2.8.1-python3.11
+  environment:
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: sqlite:////opt/airflow/airflow.db
+    AIRFLOW__CORE__FERNET_KEY: ''
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+    # Pass through Snowflake/Databricks credentials from .env
+    SNOWFLAKE_ACCOUNT: ${SNOWFLAKE_ACCOUNT:-}
+    SNOWFLAKE_USER: ${SNOWFLAKE_USER:-}
+    SNOWFLAKE_PASSWORD: ${SNOWFLAKE_PASSWORD:-}
+    SNOWFLAKE_WAREHOUSE: ${SNOWFLAKE_WAREHOUSE:-COMPUTE_WH}
+    SNOWFLAKE_DATABASE: ${SNOWFLAKE_DATABASE:-parsely}
+    SNOWFLAKE_ROLE: ${SNOWFLAKE_ROLE:-parsely_pipeline_role}
+    DATABRICKS_HOST: ${DATABRICKS_HOST:-}
+    DATABRICKS_TOKEN: ${DATABRICKS_TOKEN:-}
+  volumes:
+    - ./airflow/dags:/opt/airflow/dags
+    - ./src:/opt/parsely/src
+    - ./dbt:/opt/parsely/dbt
+    - ./data:/opt/parsely/data
+
+services:
+  # ── Streamlit App ─────────────────────────────────
+  parsely-app:
+    build: .
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./src:/app/src
+      - ./data:/app/data
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  # ── Airflow Webserver ─────────────────────────────
+  airflow-webserver:
+    <<: *airflow-common
+    command: >
+      bash -c "
+        airflow db init &&
+        airflow users create --username admin --password admin
+          --firstname Admin --lastname User --role Admin --email admin@example.com &&
+        airflow webserver
+      "
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  # ── Airflow Scheduler ─────────────────────────────
+  airflow-scheduler:
+    <<: *airflow-common
+    command: airflow scheduler
+    restart: unless-stopped
+    depends_on:
+      - airflow-webserver

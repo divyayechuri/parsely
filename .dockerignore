@@ -1,0 +1,17 @@
+# Don't send these to the Docker build context
+.git
+.github
+.venv
+venv
+__pycache__
+*.pyc
+.pytest_cache
+htmlcov
+.coverage
+.env
+.env.*
+!.env.example
+project_planning.md
+.claude
+*.md
+!README.md

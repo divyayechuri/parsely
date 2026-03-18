@@ -1,0 +1,53 @@
+{
+  "invoice_number": "INV-2026-001",
+  "invoice_date": "2026-01-15",
+  "due_date": "2026-02-14",
+  "po_number": "PO-2026-0455",
+  "vendor": {
+    "name": "Greenfield Office Supplies Co.",
+    "address": "742 Commerce Blvd",
+    "city": "Springfield",
+    "state": "IL",
+    "zip": "62704",
+    "phone": "(217) 555-0142",
+    "email": "billing@greenfieldoffice.example.com"
+  },
+  "bill_to": {
+    "name": "Lakewood Municipal Services",
+    "address": "100 City Hall Plaza",
+    "city": "Lakewood",
+    "state": "OH",
+    "zip": "44107"
+  },
+  "line_items": [
+    {
+      "description": "A4 Copy Paper (10 reams)",
+      "quantity": 10,
+      "unit_price": 8.5,
+      "amount": 85.0
+    },
+    {
+      "description": "Black Ink Cartridge - HP 61",
+      "quantity": 5,
+      "unit_price": 24.99,
+      "amount": 124.95
+    },
+    {
+      "description": "Ballpoint Pens - Box of 50",
+      "quantity": 3,
+      "unit_price": 12.75,
+      "amount": 38.25
+    },
+    {
+      "description": "Manila File Folders - Pack of 100",
+      "quantity": 2,
+      "unit_price": 18.0,
+      "amount": 36.0
+    }
+  ],
+  "subtotal": 284.2,
+  "tax_rate": 0.08,
+  "tax_amount": 22.74,
+  "total_amount": 306.94,
+  "currency": "USD"
+}

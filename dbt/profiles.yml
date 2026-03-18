@@ -1,0 +1,26 @@
+# ─────────────────────────────────────────────────────
+# dbt Connection Profile
+# ─────────────────────────────────────────────────────
+# Defines how dbt connects to Snowflake.
+# Credentials are read from environment variables
+# (set in .env file) to keep secrets out of code.
+#
+# Usage:
+#   dbt debug     — test the connection
+#   dbt run       — run all models
+#   dbt test      — run all tests
+# ─────────────────────────────────────────────────────
+
+parsely:
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE', 'parsely_pipeline_role') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE', 'parsely') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'COMPUTE_WH') }}"
+      schema: gold
+      threads: 4
+  target: dev

@@ -1,0 +1,59 @@
+{
+  "invoice_number": "INV-2026-003",
+  "invoice_date": "2026-03-10",
+  "due_date": "2026-04-09",
+  "po_number": "MDOT-2026-03-0087",
+  "vendor": {
+    "name": "Precision Industrial Parts Inc.",
+    "address": "8800 Manufacturing Row",
+    "city": "Detroit",
+    "state": "MI",
+    "zip": "48204",
+    "phone": "(313) 555-0276",
+    "email": "invoices@precisionparts.example.com"
+  },
+  "bill_to": {
+    "name": "State of Michigan - Dept of Transportation",
+    "address": "425 W Ottawa St",
+    "city": "Lansing",
+    "state": "MI",
+    "zip": "48933"
+  },
+  "line_items": [
+    {
+      "description": "Steel Guardrail Section - 12ft",
+      "quantity": 200,
+      "unit_price": 145.0,
+      "amount": 29000.0
+    },
+    {
+      "description": "Guardrail Post - Galvanized Steel",
+      "quantity": 400,
+      "unit_price": 38.5,
+      "amount": 15400.0
+    },
+    {
+      "description": "Reflective Road Marker - Amber",
+      "quantity": 1000,
+      "unit_price": 4.75,
+      "amount": 4750.0
+    },
+    {
+      "description": "Bolt Kit - Guardrail Assembly",
+      "quantity": 200,
+      "unit_price": 12.0,
+      "amount": 2400.0
+    },
+    {
+      "description": "Delivery & Freight (flatbed)",
+      "quantity": 1,
+      "unit_price": 2500.0,
+      "amount": 2500.0
+    }
+  ],
+  "subtotal": 54050.0,
+  "tax_rate": 0.06,
+  "tax_amount": 3243.0,
+  "total_amount": 57293.0,
+  "currency": "USD"
+}
