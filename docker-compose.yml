@@ -20,15 +20,13 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
-    # Pass through Snowflake/Databricks credentials from .env
+    # Pass through Snowflake credentials from .env
     SNOWFLAKE_ACCOUNT: ${SNOWFLAKE_ACCOUNT:-}
     SNOWFLAKE_USER: ${SNOWFLAKE_USER:-}
     SNOWFLAKE_PASSWORD: ${SNOWFLAKE_PASSWORD:-}
     SNOWFLAKE_WAREHOUSE: ${SNOWFLAKE_WAREHOUSE:-COMPUTE_WH}
     SNOWFLAKE_DATABASE: ${SNOWFLAKE_DATABASE:-parsely}
     SNOWFLAKE_ROLE: ${SNOWFLAKE_ROLE:-parsely_pipeline_role}
-    DATABRICKS_HOST: ${DATABRICKS_HOST:-}
-    DATABRICKS_TOKEN: ${DATABRICKS_TOKEN:-}
   volumes:
     - ./airflow/dags:/opt/airflow/dags
     - ./src:/opt/parsely/src

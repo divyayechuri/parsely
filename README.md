@@ -25,10 +25,10 @@ An end-to-end data engineering pipeline that parses business documents (PDF/Word
   Validate (10 business rules, confidence scoring)
        │
        ▼
-  Bronze → Silver (Databricks)  →  Gold (Snowflake)
-       │                                │
-       ▼                                ▼
-  dbt Transform (8 models)       Streamlit Web App
+  Bronze → Silver → Gold (Snowflake)
+       │                     │
+       ▼                     ▼
+  dbt Transform (8 models)   Streamlit Web App
   staging → intermediate → marts  (Auto-fill Form + Summary)
        │
        ▼
@@ -41,8 +41,7 @@ An end-to-end data engineering pipeline that parses business documents (PDF/Word
 |-------|-------|
 | Parsing | Python, pdfplumber, python-docx |
 | Extraction | spaCy NER, regex, Pydantic schemas |
-| Processing | Databricks (Community Edition) |
-| Warehouse | Snowflake (Free Trial) |
+| Warehouse | Snowflake (Free Trial) — Bronze, Silver, and Gold layers |
 | Transformations | dbt (8 SQL models + custom tests) |
 | Orchestration | Apache Airflow |
 | Data Quality | Custom validation framework, dbt tests |
@@ -81,7 +80,7 @@ parsely/
 │   ├── ingestion/       # PDF parsing (pdfplumber)
 │   ├── extraction/      # Field extraction (regex + spaCy NER)
 │   ├── validation/      # Data quality rules
-│   ├── loading/         # Snowflake & Databricks loaders
+│   ├── loading/         # Snowflake loader (Bronze, Silver, Gold)
 │   ├── summarization/   # Document summary generation
 │   └── app/             # Streamlit web application
 ├── dbt/models/
@@ -96,7 +95,7 @@ parsely/
 
 ## Roadmap
 
-**V1 (current)** — PDF invoice parsing, field extraction, Snowflake + Databricks integration, dbt models, Streamlit auto-fill form, Airflow orchestration, CI/CD, Docker
+**V1 (current)** — PDF invoice parsing, field extraction, Snowflake integration (Bronze/Silver/Gold medallion architecture), dbt models, Streamlit auto-fill form, Airflow orchestration, CI/CD, Docker
 
 **V2** — LLM-powered summarization (Claude API), DOCX & OCR support, multiple document types, data lineage visualization, Terraform IaC
 

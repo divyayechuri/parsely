@@ -6,8 +6,8 @@ Orchestrates the end-to-end flow:
     2. Parse each document (PDF/text extraction)
     3. Extract structured fields (regex + NER)
     4. Validate extracted data against business rules
-    5. Load raw data to Databricks (Bronze layer)
-    6. Load cleaned data to Databricks (Silver layer)
+    5. Load raw data to Snowflake (Bronze layer)
+    6. Load cleaned data to Snowflake (Silver layer)
     7. Load analytics-ready data to Snowflake (Gold layer)
     8. Run dbt transformations
     9. Run dbt tests
@@ -119,11 +119,11 @@ def validate_data(**context):
 
 
 def load_bronze(**context):
-    """Load raw parsed data to Databricks Bronze layer."""
-    from src.loading.databricks_loader import DatabricksLoader
+    """Load raw parsed data to Snowflake Bronze layer."""
+    from src.loading.snowflake_loader import SnowflakeLoader
 
     parse_results = context["ti"].xcom_pull(key="parse_results", task_ids="parse_documents")
-    loader = DatabricksLoader(dry_run=True)  # Set to False when Databricks is configured
+    loader = SnowflakeLoader(dry_run=True)  # Set to False when Snowflake is configured
 
     doc_ids = []
     for result in parse_results:
@@ -135,14 +135,14 @@ def load_bronze(**context):
 
 
 def load_silver(**context):
-    """Load cleaned data to Databricks Silver layer."""
+    """Load cleaned data to Snowflake Silver layer."""
     from src.extraction.schemas import InvoiceData
-    from src.loading.databricks_loader import DatabricksLoader
+    from src.loading.snowflake_loader import SnowflakeLoader
     from src.validation.validators import InvoiceValidator
 
     invoice_dicts = context["ti"].xcom_pull(key="invoices", task_ids="extract_fields")
     doc_ids = context["ti"].xcom_pull(key="document_ids", task_ids="load_to_bronze")
-    loader = DatabricksLoader(dry_run=True)
+    loader = SnowflakeLoader(dry_run=True)  # Set to False when Snowflake is configured
     validator = InvoiceValidator()
 
     for inv_dict, doc_id in zip(invoice_dicts, doc_ids):

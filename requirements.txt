@@ -13,7 +13,6 @@ polars                  # High-performance alternative to pandas
 
 # ── Cloud Connections ────────────────────────────────
 snowflake-connector-python   # Connect and load data to Snowflake
-databricks-sql-connector     # Connect and load data to Databricks
 
 # ── dbt ──────────────────────────────────────────────
 dbt-core                # SQL transformation framework

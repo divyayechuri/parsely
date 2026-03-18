@@ -1,15 +1,14 @@
 """
-Tests for Snowflake and Databricks loaders (dry-run mode).
+Tests for SnowflakeLoader (dry-run mode).
 
-These tests verify the loading logic without needing actual
-cloud credentials. Dry-run mode logs what would be executed
-instead of connecting to the database.
+These tests verify the loading logic for all three layers (Bronze,
+Silver, Gold) without needing actual cloud credentials. Dry-run mode
+logs what would be executed instead of connecting to the database.
 """
 
 from datetime import date
 
 from src.extraction.schemas import InvoiceData, LineItem, VendorInfo
-from src.loading.databricks_loader import DatabricksLoader
 from src.loading.snowflake_loader import SnowflakeLoader
 from src.validation.validators import InvoiceValidator, ValidationStatus
 
@@ -96,12 +95,11 @@ class TestSnowflakeLoader:
         assert id1 != id2
 
 
-class TestDatabricksLoader:
-    """Tests for DatabricksLoader in dry-run mode."""
+class TestSnowflakeBronzeLoader:
+    """Tests for SnowflakeLoader Bronze layer in dry-run mode."""
 
     def setup_method(self):
-        self.loader = DatabricksLoader(dry_run=True)
-        self.validator = InvoiceValidator()
+        self.loader = SnowflakeLoader(dry_run=True)
 
     def test_bronze_load_returns_document_id(self):
         """Bronze load should return a UUID document ID."""
@@ -110,6 +108,28 @@ class TestDatabricksLoader:
         assert doc_id  # Non-empty string
         assert len(doc_id) == 36  # UUID format
 
+    def test_bronze_preserves_file_info(self):
+        """Bronze load should use file info from parse result."""
+        parse_result = _make_parse_result()
+        parse_result["file_name"] = "custom_name.pdf"
+        doc_id = self.loader.load_bronze(parse_result)
+        assert doc_id  # Just verify it completes
+
+    def test_bronze_handles_missing_fields(self):
+        """Bronze load should handle parse results with missing optional fields."""
+        parse_result = {"text": "some text"}
+        doc_id = self.loader.load_bronze(parse_result)
+        assert doc_id
+        assert len(doc_id) == 36
+
+
+class TestSnowflakeSilverLoader:
+    """Tests for SnowflakeLoader Silver layer in dry-run mode."""
+
+    def setup_method(self):
+        self.loader = SnowflakeLoader(dry_run=True)
+        self.validator = InvoiceValidator()
+
     def test_silver_load_succeeds(self):
         """Silver load should succeed in dry-run mode."""
         invoice = _make_invoice()
@@ -117,9 +137,16 @@ class TestDatabricksLoader:
         # Should not raise
         self.loader.load_silver("test-doc-id", invoice, validation)
 
-    def test_bronze_preserves_file_info(self):
-        """Bronze load should use file info from parse result."""
-        parse_result = _make_parse_result()
-        parse_result["file_name"] = "custom_name.pdf"
-        doc_id = self.loader.load_bronze(parse_result)
-        assert doc_id  # Just verify it completes
+    def test_silver_load_with_line_items(self):
+        """Silver load should handle invoices with line items."""
+        invoice = _make_invoice()
+        validation = self.validator.validate(invoice)
+        self.loader.load_silver("test-doc-id", invoice, validation)
+        # Verify it processed both line items without error
+
+    def test_silver_load_no_line_items(self):
+        """Silver load should handle invoices without line items."""
+        invoice = _make_invoice()
+        invoice.line_items = []
+        validation = self.validator.validate(invoice)
+        self.loader.load_silver("test-doc-id", invoice, validation)

@@ -27,7 +27,6 @@ from src.extraction.field_extractor import FieldExtractor
 from src.validation.validators import InvoiceValidator
 from src.summarization.summarizer import InvoiceSummarizer
 from src.loading.snowflake_loader import SnowflakeLoader
-from src.loading.databricks_loader import DatabricksLoader
 
 
 # ── Page Configuration ────────────────────────────────
@@ -67,7 +66,7 @@ with st.sidebar:
         1. Parses PDF/text documents
         2. Extracts structured fields
         3. Validates data quality
-        4. Loads into Snowflake & Databricks
+        4. Loads into Snowflake (Bronze/Silver/Gold)
         5. Transforms with dbt
 
         This app is the frontend demo.
@@ -76,7 +75,6 @@ with st.sidebar:
     st.divider()
     st.markdown("**Pipeline Status**")
     st.markdown("Snowflake: Dry Run Mode")
-    st.markdown("Databricks: Dry Run Mode")
 
 
 # ── File Upload Section ──────────────────────────────
@@ -229,10 +227,9 @@ if uploaded_file is not None or sample_choice is not None:
         with st.spinner("Loading to warehouse (dry-run mode)..."):
             # Dry-run load to show the pipeline works end-to-end
             sf_loader = SnowflakeLoader(dry_run=True)
-            db_loader = DatabricksLoader(dry_run=True)
 
-            doc_id = db_loader.load_bronze(parse_result)
-            db_loader.load_silver(doc_id, invoice, validation)
+            doc_id = sf_loader.load_bronze(parse_result)
+            sf_loader.load_silver(doc_id, invoice, validation)
             sf_result = sf_loader.load_invoice(invoice, validation)
 
         st.success(
