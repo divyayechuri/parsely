@@ -3,36 +3,37 @@
                         INVOICE
 ============================================================
 
-Greenfield Office Supplies Co.
-742 Commerce Blvd
-Springfield, IL 62704
-Phone: (217) 555-0142
-Email: billing@greenfieldoffice.example.com
+Snowflake Industrial Parts Inc.
+8888 Manufacturing Row
+Houston, MI 48204
+Phone: (313) 555-0276
+Email: invoices@precisionparts.example.com
 
 ────────────────────────────────────────────────────────────
 
 Bill To:
-Lakewood Municipal Services
-100 City Hall Plaza
-Lakewood, OH 44107
+State of Houston - Dept of Transportation
+425 W Ottawa St
+Lansing, MI 48933
 
-Invoice Number:  INV-2026-001
-Invoice Date:    2026-01-15
-Due Date:        2026-02-14
-PO Number:       PO-2026-0455
+Invoice Number:  INV-1994-011
+Invoice Date:    2026-03-12
+Due Date:        2026-04-09
+PO Number:       MDOT-2026-03-0087
 
 ────────────────────────────────────────────────────────────
 Description                           Qty   Unit Price       Amount
 ────────────────────────────────────────────────────────────
-A4 Copy Paper (10 reams)               10         8.50        85.00
-Black Ink Cartridge - HP 61             5        24.99       124.95
-Ballpoint Pens - Box of 50              3        12.75        38.25
-Manila File Folders - Pack of 100       2        18.00        36.00
+Steel Guardrail Section - 12ft        200       145.00    29,000.00
+Guardrail Post - Galvanized Steel     400        38.50    15,400.00
+Reflective Road Marker - Amber       1000         4.75     4,750.00
+Bolt Kit - Guardrail Assembly         200        12.00     2,400.00
+Delivery & Freight (flatbed)            1     2,500.00     2,500.00
 ────────────────────────────────────────────────────────────
-Subtotal:                                                    284.20
-Tax (8.00%):                                                  22.74
+Subtotal:                                                 54,050.00
+Tax (6.0%):                                                3,243.00
 ════════════════════════════════════════════════════════════
-TOTAL DUE:                                                   306.94
+TOTAL DUE:                                                57,293.00
 ════════════════════════════════════════════════════════════
 
 Payment Terms: Net 30

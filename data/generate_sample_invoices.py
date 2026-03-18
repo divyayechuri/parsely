@@ -11,6 +11,8 @@ Usage:
 import json
 import os
 
+from fpdf import FPDF
+
 # Sample invoice data — publicly safe, completely fictional
 SAMPLE_INVOICES = [
     {
@@ -162,7 +164,7 @@ PO Number:       {invoice['po_number']}
 
         text += f"""{'─'*60}
 {"Subtotal:":<54} {subtotal:>12,.2f}
-{"Tax (" + f"{invoice['tax_rate']*100:.1f}%" + "):":<54} {tax:>12,.2f}
+{"Tax (" + f"{invoice['tax_rate']*100:.2f}%" + "):":<54} {tax:>12,.2f}
 {'═'*60}
 {"TOTAL DUE:":<54} {total:>12,.2f}
 {'═'*60}
@@ -199,9 +201,159 @@ Thank you for your business!
         print(f"Generated: {txt_path}")
         print(f"Generated: {json_path}")
 
-    print(f"\nDone! {len(SAMPLE_INVOICES)} sample invoices generated in {output_dir}/")
+    print(f"\nDone! {len(SAMPLE_INVOICES)} text/JSON invoices generated in {output_dir}/")
+
+
+def generate_pdf_invoices(output_dir: str) -> None:
+    """
+    Generate sample invoices as PDF files using fpdf2.
+    The PDFs are realistic-looking invoices readable by pdfplumber.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    for i, invoice in enumerate(SAMPLE_INVOICES, start=1):
+        # Calculate totals
+        line_items = invoice["line_items"]
+        for item in line_items:
+            item["amount"] = round(item["quantity"] * item["unit_price"], 2)
+
+        subtotal = round(sum(item["amount"] for item in line_items), 2)
+        tax = round(subtotal * invoice["tax_rate"], 2)
+        total = round(subtotal + tax, 2)
+
+        vendor = invoice["vendor"]
+        bill_to = invoice["bill_to"]
+
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_auto_page_break(auto=True, margin=15)
+
+        # ── Company header ──
+        pdf.set_font("Helvetica", "B", 16)
+        pdf.cell(0, 8, vendor["name"], new_x="LMARGIN", new_y="NEXT")
+        pdf.set_font("Helvetica", "", 10)
+        pdf.cell(0, 5, vendor["address"], new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(
+            0, 5,
+            f"{vendor['city']}, {vendor['state']} {vendor['zip']}",
+            new_x="LMARGIN", new_y="NEXT",
+        )
+        pdf.cell(0, 5, f"Phone: {vendor['phone']}", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 5, f"Email: {vendor['email']}", new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(6)
+
+        # ── INVOICE title ──
+        pdf.set_font("Helvetica", "B", 22)
+        pdf.cell(0, 12, "INVOICE", new_x="LMARGIN", new_y="NEXT", align="C")
+        pdf.ln(4)
+
+        # ── Horizontal rule ──
+        pdf.set_draw_color(0, 0, 0)
+        pdf.set_line_width(0.5)
+        pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+        pdf.ln(6)
+
+        # ── Bill To + Invoice metadata side by side ──
+        y_top = pdf.get_y()
+
+        # Bill To (left side)
+        pdf.set_font("Helvetica", "B", 11)
+        pdf.cell(95, 6, "Bill To:", new_x="LMARGIN", new_y="NEXT")
+        pdf.set_font("Helvetica", "", 10)
+        pdf.cell(95, 5, bill_to["name"], new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(95, 5, bill_to["address"], new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(
+            95, 5,
+            f"{bill_to['city']}, {bill_to['state']} {bill_to['zip']}",
+            new_x="LMARGIN", new_y="NEXT",
+        )
+        y_after_bill_to = pdf.get_y()
+
+        # Invoice metadata (right side)
+        pdf.set_y(y_top)
+        pdf.set_font("Helvetica", "", 10)
+        meta_x = 115
+        for label, value in [
+            ("Invoice Number:", invoice["invoice_number"]),
+            ("Invoice Date:", invoice["invoice_date"]),
+            ("Due Date:", invoice["due_date"]),
+            ("PO Number:", invoice["po_number"]),
+        ]:
+            pdf.set_x(meta_x)
+            pdf.set_font("Helvetica", "B", 10)
+            pdf.cell(35, 5, label, new_x="END", new_y="LAST")
+            pdf.set_font("Helvetica", "", 10)
+            pdf.cell(45, 5, value, new_x="LMARGIN", new_y="NEXT")
+
+        pdf.set_y(max(y_after_bill_to, pdf.get_y()) + 6)
+
+        # ── Line items table ──
+        # Header
+        pdf.set_draw_color(0, 0, 0)
+        pdf.set_line_width(0.3)
+        pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+        pdf.ln(1)
+
+        pdf.set_font("Helvetica", "B", 10)
+        col_w = [90, 20, 35, 35]  # Description, Qty, Unit Price, Amount
+        headers = ["Description", "Qty", "Unit Price", "Amount"]
+        aligns = ["L", "R", "R", "R"]
+        for idx, header in enumerate(headers):
+            pdf.cell(col_w[idx], 7, header, align=aligns[idx], new_x="END", new_y="LAST")
+        pdf.ln()
+        pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+        pdf.ln(1)
+
+        # Rows
+        pdf.set_font("Helvetica", "", 10)
+        for item in line_items:
+            pdf.cell(col_w[0], 6, item["description"], new_x="END", new_y="LAST")
+            pdf.cell(col_w[1], 6, str(item["quantity"]), align="R", new_x="END", new_y="LAST")
+            pdf.cell(col_w[2], 6, f"${item['unit_price']:,.2f}", align="R", new_x="END", new_y="LAST")
+            pdf.cell(col_w[3], 6, f"${item['amount']:,.2f}", align="R", new_x="LMARGIN", new_y="NEXT")
+
+        pdf.ln(1)
+        pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+        pdf.ln(3)
+
+        # ── Totals ──
+        totals_x = 130
+        for label, value in [
+            ("Subtotal:", f"${subtotal:,.2f}"),
+            (f"Tax ({invoice['tax_rate']*100:.2f}%):", f"${tax:,.2f}"),
+        ]:
+            pdf.set_x(totals_x)
+            pdf.set_font("Helvetica", "", 10)
+            pdf.cell(35, 6, label, align="R", new_x="END", new_y="LAST")
+            pdf.cell(25, 6, value, align="R", new_x="LMARGIN", new_y="NEXT")
+
+        # Total line
+        pdf.set_line_width(0.5)
+        pdf.line(totals_x, pdf.get_y(), 200, pdf.get_y())
+        pdf.ln(1)
+        pdf.set_x(totals_x)
+        pdf.set_font("Helvetica", "B", 12)
+        pdf.cell(35, 8, "TOTAL DUE:", align="R", new_x="END", new_y="LAST")
+        pdf.cell(25, 8, f"${total:,.2f}", align="R", new_x="LMARGIN", new_y="NEXT")
+        pdf.set_line_width(0.5)
+        pdf.line(totals_x, pdf.get_y(), 200, pdf.get_y())
+        pdf.ln(10)
+
+        # ── Footer ──
+        pdf.set_font("Helvetica", "", 10)
+        pdf.cell(0, 5, "Payment Terms: Net 30", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 5, "Thank you for your business!", new_x="LMARGIN", new_y="NEXT")
+
+        # Write PDF
+        pdf_path = os.path.join(output_dir, f"sample_invoice_{i:02d}.pdf")
+        pdf.output(pdf_path)
+        print(f"Generated: {pdf_path}")
+
+    print(f"\nDone! {len(SAMPLE_INVOICES)} PDF invoices generated in {output_dir}/")
 
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    generate_text_invoices(os.path.join(script_dir, "samples"))
+    samples_dir = os.path.join(script_dir, "samples")
+    generate_text_invoices(samples_dir)
+    generate_pdf_invoices(samples_dir)

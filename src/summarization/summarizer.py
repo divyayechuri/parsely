@@ -76,7 +76,7 @@ class InvoiceSummarizer:
 
     def _header_section(self, invoice: InvoiceData) -> str:
         """Invoice identification section."""
-        lines = ["DOCUMENT SUMMARY", "=" * 40]
+        lines = ["DOCUMENT SUMMARY", "=" * 40]  # ASCII only for Windows compat
 
         if invoice.invoice_number:
             lines.append(f"Invoice Number:  {invoice.invoice_number}")
@@ -136,7 +136,7 @@ class InvoiceSummarizer:
         if invoice.tax_amount is not None:
             tax_info = f"Tax:         ${invoice.tax_amount:>12,.2f}"
             if invoice.tax_rate is not None:
-                tax_info += f"  ({invoice.tax_rate * 100:.1f}%)"
+                tax_info += f"  ({invoice.tax_rate * 100:.2f}%)"
             lines.append(tax_info)
         if invoice.total_amount is not None:
             lines.append(f"{'=' * 30}")

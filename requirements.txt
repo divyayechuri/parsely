@@ -1,5 +1,6 @@
 # ── Document Parsing ──────────────────────────────────
 pdfplumber              # Extract text and tables from PDFs
+fpdf2                   # Generate PDF invoices for testing
 python-docx             # Parse Word documents (V2)
 Pillow                  # Image processing for OCR support (V2)
 

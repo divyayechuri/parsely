@@ -235,9 +235,15 @@ def extract_line_items(text: str) -> list[LineItem]:
     """
     items = []
 
-    # Match lines with: description, quantity, unit_price, amount
-    # The numbers may have commas (e.g., 1,149.00)
-    pattern = r"^(.+?)\s{2,}(\d+(?:,\d{3})*(?:\.\d+)?)\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s*$"
+    # Two patterns to handle different text extraction formats:
+    # 1. Text files: columns separated by 2+ spaces, no $ signs
+    # 2. PDF files: columns may have single spaces, $ signs on prices
+    patterns = [
+        # Text file format: description (2+ spaces) qty (spaces) price (spaces) amount
+        r"^(.+?)\s{2,}(\d+(?:,\d{3})*(?:\.\d+)?)\s+\$?([\d,]+\.\d{2})\s+\$?([\d,]+\.\d{2})\s*$",
+        # PDF format: description (spaces) qty (space) $price (space) $amount
+        r"^(.+?)\s+(\d+(?:,\d{3})*)\s+\$?([\d,]+\.\d{2})\s+\$?([\d,]+\.\d{2})\s*$",
+    ]
 
     for line in text.split("\n"):
         line = line.strip()
@@ -246,10 +252,21 @@ def extract_line_items(text: str) -> list[LineItem]:
         # Skip header row
         if re.match(r"Description\s+Qty", line, re.IGNORECASE):
             continue
+        # Skip non-line-item rows (totals, labels, etc.)
+        if re.match(r"^(Subtotal|Tax|TOTAL|Payment|Thank|Bill|Invoice|Due|PO )", line, re.IGNORECASE):
+            continue
 
-        match = re.match(pattern, line)
+        match = None
+        for pattern in patterns:
+            match = re.match(pattern, line)
+            if match:
+                break
+
         if match:
             description = match.group(1).strip()
+            # Skip if description looks like a header or metadata
+            if description.lower() in ("description", "item", ""):
+                continue
             quantity = float(match.group(2).replace(",", ""))
             unit_price = float(match.group(3).replace(",", ""))
             amount = float(match.group(4).replace(",", ""))
@@ -266,7 +283,7 @@ def extract_line_items(text: str) -> list[LineItem]:
 
 def extract_subtotal(text: str) -> Optional[float]:
     """Extract the subtotal amount."""
-    pattern = r"Subtotal\s*:?\s*([\d,]+\.\d{2})"
+    pattern = r"Subtotal\s*:?\s*\$?([\d,]+\.\d{2})"
     match = re.search(pattern, text, re.IGNORECASE)
     if match:
         return float(match.group(1).replace(",", ""))
@@ -280,7 +297,7 @@ def extract_tax(text: str) -> tuple[Optional[float], Optional[float]]:
     Matches: Tax (8.0%): 22.74
     """
     # Try to get both rate and amount
-    pattern = r"Tax\s*\((\d+\.?\d*)%\)\s*:?\s*([\d,]+\.\d{2})"
+    pattern = r"Tax\s*\((\d+\.?\d*)%\)\s*:?\s*\$?([\d,]+\.\d{2})"
     match = re.search(pattern, text, re.IGNORECASE)
     if match:
         rate = float(match.group(1)) / 100.0
@@ -288,7 +305,7 @@ def extract_tax(text: str) -> tuple[Optional[float], Optional[float]]:
         return rate, amount
 
     # Try just the amount
-    pattern = r"Tax\s*:?\s*([\d,]+\.\d{2})"
+    pattern = r"Tax\s*:?\s*\$?([\d,]+\.\d{2})"
     match = re.search(pattern, text, re.IGNORECASE)
     if match:
         return None, float(match.group(1).replace(",", ""))
@@ -311,7 +328,7 @@ def extract_total(text: str) -> Optional[float]:
             continue
         # Match lines with TOTAL, Total Due, Amount Due, etc.
         match = re.match(
-            r".*(?:TOTAL\s*(?:DUE|AMOUNT)?|Amount\s*Due)\s*:?\s*([\d,]+\.\d{2})",
+            r".*(?:TOTAL\s*(?:DUE|AMOUNT)?|Amount\s*Due)\s*:?\s*\$?([\d,]+\.\d{2})",
             stripped,
             re.IGNORECASE,
         )
