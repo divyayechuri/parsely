@@ -1,17 +1,22 @@
 # Parsely
 
-An end-to-end data engineering pipeline that parses business documents (PDF/Word), extracts structured data into a cloud data warehouse, and auto-fills a web form with a document summary.
+An end-to-end data engineering pipeline that parses invoice documents (PDF and text), extracts structured data, validates it, loads it into Snowflake, and auto-fills a web form with document insights.
+
+<!-- Uncomment when demo.gif is added:
+![Parsely Demo](demo.gif)
+-->
 
 ---
 
 ## What It Does
 
-1. **Upload** a PDF or text invoice via a Streamlit web app
+1. **Upload** a PDF or text invoice via the Streamlit web app
 2. **Extract** structured fields automatically — vendor, dates, line items, totals
-3. **Validate** data quality against 10+ business rules
-4. **Load** through a medallion architecture (Bronze → Silver → Gold)
-5. **Transform** with dbt into a star schema (dimensions + facts)
-6. **View** auto-filled form + document summary in the browser
+3. **Review** the auto-filled form — edit any field if needed
+4. **Validate** data quality against 10+ business rules
+5. **Load** through a medallion architecture (Bronze → Silver → Gold) in Snowflake
+6. **Transform** with dbt into a star schema (dimensions + facts)
+7. **View** document insights and recent submission history
 
 ## Architecture
 
@@ -29,7 +34,8 @@ An end-to-end data engineering pipeline that parses business documents (PDF/Word
        │                     │
        ▼                     ▼
   dbt Transform (8 models)   Streamlit Web App
-  staging → intermediate → marts  (Auto-fill Form + Summary)
+  staging → intermediate     (Auto-fill Form + Insights)
+       → marts (star schema)
        │
        ▼
   Orchestrated by Apache Airflow (9-step DAG)
@@ -39,10 +45,10 @@ An end-to-end data engineering pipeline that parses business documents (PDF/Word
 
 | Layer | Tools |
 |-------|-------|
-| Parsing | Python, pdfplumber, python-docx |
+| Parsing | Python, pdfplumber, fpdf2 |
 | Extraction | spaCy NER, regex, Pydantic schemas |
-| Warehouse | Snowflake (Free Trial) — Bronze, Silver, and Gold layers |
-| Transformations | dbt (8 SQL models + custom tests) |
+| Warehouse | Snowflake — Bronze, Silver, and Gold layers |
+| Transformations | dbt (8 SQL models + 32 data tests) |
 | Orchestration | Apache Airflow |
 | Data Quality | Custom validation framework, dbt tests |
 | Frontend | Streamlit |
@@ -53,7 +59,7 @@ An end-to-end data engineering pipeline that parses business documents (PDF/Word
 
 ```bash
 # Clone and install
-git clone https://github.com/<your-username>/parsely.git
+git clone https://github.com/divyayechuri/parsely.git
 cd parsely
 pip install -r requirements.txt
 
@@ -68,7 +74,7 @@ docker-compose up -d
 ## Run Tests
 
 ```bash
-pytest tests/ -v            # 78 tests
+pytest tests/ -v            # 90 unit & integration tests
 pytest tests/ -v --cov=src  # With coverage
 ```
 
@@ -79,9 +85,9 @@ parsely/
 ├── src/
 │   ├── ingestion/       # PDF parsing (pdfplumber)
 │   ├── extraction/      # Field extraction (regex + spaCy NER)
-│   ├── validation/      # Data quality rules
+│   ├── validation/      # Data quality rules (10 business rules)
 │   ├── loading/         # Snowflake loader (Bronze, Silver, Gold)
-│   ├── summarization/   # Document summary generation
+│   ├── summarization/   # Document insights generation
 │   └── app/             # Streamlit web application
 ├── dbt/models/
 │   ├── staging/         # Clean interface over Silver layer
@@ -89,13 +95,13 @@ parsely/
 │   └── marts/           # Star schema (dim + fact tables)
 ├── airflow/dags/        # Pipeline orchestration DAG
 ├── snowflake/ddl/       # Database setup scripts
-├── tests/               # 78 unit & integration tests
-└── data/samples/        # Sample invoices for testing
+├── tests/               # 90 unit & integration tests
+└── data/samples/        # Sample invoices (PDF + text)
 ```
 
 ## Roadmap
 
-**V1 (current)** — PDF invoice parsing, field extraction, Snowflake integration (Bronze/Silver/Gold medallion architecture), dbt models, Streamlit auto-fill form, Airflow orchestration, CI/CD, Docker
+**V1 (current)** — PDF invoice parsing, field extraction, Snowflake integration (Bronze/Silver/Gold), dbt models, Streamlit auto-fill form with edit tracking and insights, Airflow orchestration, CI/CD, Docker
 
 **V2** — LLM-powered summarization (Claude API), DOCX & OCR support, multiple document types, data lineage visualization, Terraform IaC
 

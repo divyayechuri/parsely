@@ -90,6 +90,43 @@ st.markdown("""
         padding: 0.8rem 1.2rem; border-radius: 0 8px 8px 0;
         margin: 0.5rem 0; line-height: 1.6; color: #78350f; font-size: 0.9rem;
     }
+
+    /* Submit button — match page theme */
+    div.stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, #0f3460, #1e293b) !important;
+        border: none !important;
+        color: white !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.5px !important;
+        padding: 0.6rem 1.5rem !important;
+        transition: opacity 0.2s !important;
+    }
+    div.stButton > button[kind="primary"]:hover {
+        opacity: 0.9 !important;
+    }
+    div.stButton > button[kind="primary"]:disabled {
+        background: #94a3b8 !important;
+        opacity: 0.5 !important;
+    }
+
+    /* Document Summary — stand out */
+    .summary-card {
+        background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+        border: 1px solid #bae6fd;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 0.5rem 0 1rem 0;
+    }
+    .summary-card-title {
+        color: #0369a1; font-size: 1.1rem; font-weight: 700;
+        letter-spacing: 0.5px; margin-bottom: 0.8rem;
+    }
+
+    /* Recent Submissions label */
+    .submissions-label {
+        color: #0f3460; font-size: 1.1rem; font-weight: 700;
+        letter-spacing: 0.5px; margin-bottom: 0.3rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -315,7 +352,6 @@ else:
 
 # ── Document Summary (Insights) ──────────────────────
 st.divider()
-st.markdown('<div class="section-label">Document Summary</div>', unsafe_allow_html=True)
 
 if invoice and invoice.line_items:
     amounts = [item.amount for item in invoice.line_items if item.amount]
@@ -347,17 +383,34 @@ if invoice and invoice.line_items:
 
     if insights:
         st.markdown(f"""
-        <div style="background: #f0f9ff; border-left: 3px solid #0ea5e9; padding: 1rem 1.2rem;
-                    border-radius: 0 8px 8px 0; line-height: 1.8; color: #334155;">
-            {'<br>'.join(insights[:3])}
+        <div class="summary-card">
+            <div class="summary-card-title">Document Summary</div>
+            <div style="line-height: 1.8; color: #334155;">
+                {'<br>'.join(insights[:3])}
+            </div>
         </div>
         """, unsafe_allow_html=True)
     else:
-        st.caption("No additional insights available.")
+        st.markdown("""
+        <div class="summary-card">
+            <div class="summary-card-title">Document Summary</div>
+            <div style="color: #64748b;">No additional insights available for this invoice.</div>
+        </div>
+        """, unsafe_allow_html=True)
 elif has_document:
-    st.caption("No line items extracted from this document.")
+    st.markdown("""
+    <div class="summary-card">
+        <div class="summary-card-title">Document Summary</div>
+        <div style="color: #64748b;">No line items extracted from this document.</div>
+    </div>
+    """, unsafe_allow_html=True)
 else:
-    st.caption("A summary of the extracted data will appear here.")
+    st.markdown("""
+    <div class="summary-card">
+        <div class="summary-card-title">Document Summary</div>
+        <div style="color: #94a3b8;">A summary of the extracted data will appear here.</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # ── Changes Comparison ────────────────────────────────
 if has_document and "_orig" in st.session_state:
@@ -391,7 +444,7 @@ if has_document and "_orig" in st.session_state:
 st.divider()
 
 if has_document and invoice:
-    if st.button("Submit to Pipeline", type="primary", use_container_width=True):
+    if st.button("Submit", type="primary", use_container_width=True):
         submit_invoice = deepcopy(invoice)
         submit_invoice.invoice_number = form_invoice_number or invoice.invoice_number
         submit_invoice.po_number = form_po_number or invoice.po_number
@@ -415,35 +468,19 @@ if has_document and invoice:
             sf_result = sf_loader.load_invoice(submit_invoice, validation)
             sf_loader.close()
 
-        changes_note = ""
-        if "_orig" in st.session_state:
-            orig = st.session_state["_orig"]
-            num_changes = sum(
-                1 for f, v in {
-                    "Invoice Number": form_invoice_number, "PO Number": form_po_number,
-                    "Vendor Name": form_vendor_name, "Address": form_vendor_address,
-                    "City": form_vendor_city, "State": form_vendor_state,
-                    "ZIP": form_vendor_zip, "Phone": form_vendor_phone, "Email": form_vendor_email,
-                }.items()
-                if v and orig.get(f, "") and v != orig.get(f, "")
-            )
-            if num_changes:
-                changes_note = f"<br><span style='color: #555; font-size: 0.85rem;'>{num_changes} field(s) were modified before submission</span>"
+        inv_num = submit_invoice.invoice_number or "Invoice"
+        vendor = submit_invoice.vendor.name or "Unknown vendor"
 
         st.markdown(f"""
         <div class="submitted-banner">
-            <strong>Submitted successfully</strong><br>
-            <span style="color: #555;">Document ID: {doc_id[:8]}... &nbsp;|&nbsp;
-            Loaded to Bronze, Silver, and Gold layers in Snowflake</span>
-            {changes_note}
+            <strong>{inv_num}</strong> from <strong>{vendor}</strong> has been submitted successfully.
         </div>
         """, unsafe_allow_html=True)
 else:
-    st.button("Submit to Pipeline", type="primary", use_container_width=True, disabled=True)
+    st.button("Submit", type="primary", use_container_width=True, disabled=True)
 
 # ── Recent Submissions ────────────────────────────────
 st.divider()
-st.markdown('<div class="section-label">Recent Submissions</div>', unsafe_allow_html=True)
 
 @st.cache_data(ttl=10)
 def load_recent_submissions():
@@ -473,12 +510,32 @@ def load_recent_submissions():
         return None, None
 
 rows, columns = load_recent_submissions()
+
 if rows:
     import pandas as pd
     df = pd.DataFrame(rows, columns=columns)
     df["Total"] = df["Total"].apply(lambda x: f"${x:,.2f}" if x else "--")
     df["Invoice Date"] = df["Invoice Date"].apply(lambda x: str(x) if x else "--")
     df["Submitted"] = df["Submitted"].apply(lambda x: x.strftime("%b %d, %Y %I:%M %p") if x else "--")
+
+    # Style the dataframe with colored header
+    def style_table(styler):
+        styler.set_table_styles([
+            {"selector": "thead tr th", "props": [
+                ("background-color", "#0f172a"), ("color", "#64ffda"),
+                ("font-weight", "700"), ("font-size", "0.9rem"),
+                ("padding", "10px 12px"), ("letter-spacing", "0.3px"),
+            ]},
+            {"selector": "tbody tr td", "props": [
+                ("padding", "8px 12px"), ("font-size", "0.88rem"),
+            ]},
+            {"selector": "tbody tr:nth-child(even)", "props": [
+                ("background-color", "#f1f5f9"),
+            ]},
+        ])
+        return styler
+
+    st.markdown('<div class="submissions-label">Recent Submissions</div>', unsafe_allow_html=True)
     st.dataframe(df, use_container_width=True, hide_index=True)
 else:
     st.caption("No submissions yet. Upload and submit an invoice to see it here.")
