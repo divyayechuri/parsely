@@ -49,6 +49,8 @@ great_expectations/uncommitted/
 
 # Personal reference docs — not for GitHub
 project_planning.md
+interview_talking_points.md
+project_deep_dive.md
 
 # Claude Code config
 .claude/
