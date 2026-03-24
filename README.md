@@ -2,9 +2,7 @@
 
 An end-to-end data engineering pipeline that parses invoice documents (PDF and text), extracts structured data, validates it, loads it into Snowflake, and auto-fills a web form with document insights.
 
-<!-- Uncomment when demo.gif is added:
 ![Parsely Demo](demo.gif)
--->
 
 ---
 

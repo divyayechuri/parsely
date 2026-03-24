@@ -51,6 +51,11 @@ great_expectations/uncommitted/
 project_planning.md
 interview_talking_points.md
 project_deep_dive.md
+ci_explained.md
+
+# Large media files (keep demo.gif, ignore source recordings)
+*.mp4
+*.mht
 
 # Claude Code config
 .claude/
