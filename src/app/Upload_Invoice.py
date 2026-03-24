@@ -35,6 +35,28 @@ st.set_page_config(page_title="Parsely", page_icon="P", layout="wide")
 # ── Styling ───────────────────────────────────────────
 st.markdown("""
 <style>
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0f172a, #1e293b);
+    }
+    [data-testid="stSidebar"] * {
+        color: #e2e8f0 !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stSidebarNavLink"] {
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        padding: 0.6rem 1rem !important;
+        border-radius: 8px !important;
+        margin: 2px 8px !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stSidebarNavLink"][aria-selected="true"] {
+        background: rgba(100, 255, 218, 0.15) !important;
+        color: #64ffda !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stSidebarNavLink"]:hover {
+        background: rgba(255, 255, 255, 0.08) !important;
+    }
+
     .hero {
         background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #0f3460 100%);
         padding: 2.2rem 2.8rem; border-radius: 14px; margin-bottom: 1.5rem;
@@ -460,7 +482,7 @@ if has_document and invoice:
         submit_invoice.vendor.phone = form_vendor_phone or invoice.vendor.phone
         submit_invoice.vendor.email = form_vendor_email or invoice.vendor.email
 
-        with st.spinner("Loading to Snowflake..."):
+        with st.spinner(""):
             sf_loader = SnowflakeLoader(dry_run=False)
             sf_loader.connect()
             doc_id = sf_loader.load_bronze(parse_result)
@@ -471,18 +493,27 @@ if has_document and invoice:
         inv_num = submit_invoice.invoice_number or "Invoice"
         vendor = submit_invoice.vendor.name or "Unknown vendor"
 
-        st.markdown(f"""
-        <div class="submitted-banner">
-            <strong>{inv_num}</strong> from <strong>{vendor}</strong> has been submitted successfully.
-        </div>
-        """, unsafe_allow_html=True)
+        if sf_result["status"] == "loaded":
+            st.markdown(f"""
+            <div class="submitted-banner">
+                <strong>{inv_num}</strong> from <strong>{vendor}</strong> has been submitted successfully.
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+            <div style="background: #fff3cd; border-left: 4px solid #f59e0b;
+                        padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin: 1rem 0;">
+                <strong>{inv_num}</strong> was partially submitted. Some fields could not be
+                extracted reliably &mdash; raw data has been saved for review.
+            </div>
+            """, unsafe_allow_html=True)
 else:
     st.button("Submit", type="primary", use_container_width=True, disabled=True)
 
 # ── Recent Submissions ────────────────────────────────
 st.divider()
 
-@st.cache_data(ttl=10)
+@st.cache_data(ttl=10, show_spinner=False)
 def load_recent_submissions():
     try:
         from dotenv import load_dotenv
@@ -517,6 +548,8 @@ if rows:
     df["Total"] = df["Total"].apply(lambda x: f"${x:,.2f}" if x else "--")
     df["Invoice Date"] = df["Invoice Date"].apply(lambda x: str(x) if x else "--")
     df["Submitted"] = df["Submitted"].apply(lambda x: x.strftime("%b %d, %Y %I:%M %p") if x else "--")
+    status_map = {"passed": "Passed", "failed": "Needs Review", "review_needed": "Needs Review"}
+    df["Status"] = df["Status"].apply(lambda x: status_map.get(x, x) if x else "--")
 
     # Style the dataframe with colored header
     def style_table(styler):

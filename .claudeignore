@@ -1,0 +1,83 @@
+# Large/binary files - no need to read these
+*.pdf
+*.gif
+*.mp4
+*.mht
+*.png
+
+# Generated/vendored - not useful for context
+dbt/dbt_packages/
+dbt/target/
+dbt/logs/
+dbt/package-lock.yml
+dbt/.user.yml
+
+# Python cache
+__pycache__/
+*.pyc
+.pytest_cache/
+htmlcov/
+
+# Dependencies
+.venv/
+venv/
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker build context
+*.egg-info/
+dist/
+build/
+
+# Airflow runtime
+airflow/logs/
+airflow/airflow.db
+
+# Sample data (text/JSON are repetitive, PDFs already covered above)
+data/samples/*_expected.json
+data/samples/*.txt
+data/generate_sample_invoices.py
+data/generate_real_world_invoices.py
+
+# Snowflake DDL (static SQL, rarely changes)
+snowflake/ddl/
+
+# dbt config files (rarely changes)
+dbt/dbt_project.yml
+dbt/profiles.yml
+dbt/packages.yml
+dbt/seeds/
+
+# dbt YAML docs (schema definitions, not code)
+dbt/models/**/*.yml
+
+# Airflow DAG (written but not deployed, rarely changes)
+airflow/
+
+# Docker files (not actively used)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Project docs (not code)
+LICENSE
+Makefile
+README.md
+CLAUDE.md
+
+# CI workflow (rarely changes)
+.github/
+
+# Test fixtures (conftest is enough context)
+tests/conftest.py
+
+# Empty init files
+src/__init__.py
+src/*/__init__.py

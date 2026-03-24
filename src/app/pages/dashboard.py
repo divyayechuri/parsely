@@ -28,6 +28,28 @@ st.set_page_config(page_title="Dashboard", layout="wide")
 # ── Styling ───────────────────────────────────────────
 st.markdown("""
 <style>
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0f172a, #1e293b);
+    }
+    [data-testid="stSidebar"] * {
+        color: #e2e8f0 !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stSidebarNavLink"] {
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        padding: 0.6rem 1rem !important;
+        border-radius: 8px !important;
+        margin: 2px 8px !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stSidebarNavLink"][aria-selected="true"] {
+        background: rgba(100, 255, 218, 0.15) !important;
+        color: #64ffda !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stSidebarNavLink"]:hover {
+        background: rgba(255, 255, 255, 0.08) !important;
+    }
+
     .section-label {
         color: #0f3460; font-size: 1.1rem; font-weight: 700;
         letter-spacing: 0.5px; margin-bottom: 0.5rem;
@@ -56,7 +78,7 @@ def _get_snowflake_connection():
     )
 
 
-@st.cache_data(ttl=30)
+@st.cache_data(ttl=30, show_spinner=False)
 def load_invoice_summary() -> pd.DataFrame:
     """Load fact_invoice_summary joined with dim_vendors."""
     conn = _get_snowflake_connection()
@@ -81,7 +103,7 @@ def load_invoice_summary() -> pd.DataFrame:
         conn.close()
 
 
-@st.cache_data(ttl=30)
+@st.cache_data(ttl=30, show_spinner=False)
 def load_top_line_items() -> pd.DataFrame:
     """Load top 5 line items by amount from the Gold layer."""
     conn = _get_snowflake_connection()
@@ -108,17 +130,14 @@ def load_top_line_items() -> pd.DataFrame:
 # ── Page Content ─────────────────────────────────────
 
 st.title("Dashboard")
-st.caption("Invoice processing metrics from the Gold layer in Snowflake.")
 
-try:
-    summary_df = load_invoice_summary()
-    line_items_df = load_top_line_items()
-except Exception as e:
-    st.error(
-        f"Could not connect to Snowflake. Please check your credentials in .env.\n\n"
-        f"Error: {e}"
-    )
-    st.stop()
+with st.spinner(""):
+    try:
+        summary_df = load_invoice_summary()
+        line_items_df = load_top_line_items()
+    except Exception:
+        st.warning("Unable to load data. Please check your connection.")
+        st.stop()
 
 if summary_df.empty:
     st.info("No invoice data found in the Gold layer yet. Submit an invoice to get started.")
