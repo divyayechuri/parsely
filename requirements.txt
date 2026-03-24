@@ -5,7 +5,6 @@ python-docx             # Parse Word documents (V2)
 Pillow                  # Image processing for OCR support (V2)
 
 # ── Field Extraction ─────────────────────────────────
-spacy                   # NLP — Named Entity Recognition (dates, amounts, orgs)
 pydantic                # Data validation and typed schemas for extracted fields
 
 # ── Data Processing ──────────────────────────────────

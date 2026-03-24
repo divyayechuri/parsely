@@ -80,11 +80,11 @@ def parse_document(**context):
 
 
 def extract_fields(**context):
-    """Run field extraction (regex + NER) on parsed text."""
+    """Run field extraction (regex) on parsed text."""
     from src.extraction.field_extractor import FieldExtractor
 
     parse_results = context["ti"].xcom_pull(key="parse_results", task_ids="parse_documents")
-    extractor = FieldExtractor(use_ner=False)  # NER disabled for speed; enable if spaCy installed
+    extractor = FieldExtractor()
 
     invoices = []
     for result in parse_results:

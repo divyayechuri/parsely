@@ -19,7 +19,7 @@ python data/generate_sample_invoices.py
 ```
 
 ## Architecture
-- **Python** handles: parsing (pdfplumber), extraction (regex + spaCy), validation, loading to Snowflake
+- **Python** handles: parsing (pdfplumber), extraction (regex), validation, loading to Snowflake
 - **Snowflake** stores all 3 layers: Bronze (raw), Silver (cleaned), Gold (dimensional)
 - **dbt** transforms Silver → Gold (8 models, 32 tests)
 - **Streamlit** is the frontend (upload, auto-fill form, insights, submit)

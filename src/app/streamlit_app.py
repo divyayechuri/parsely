@@ -136,7 +136,7 @@ st.markdown("""
 def get_components():
     return {
         "parser": PDFParser(),
-        "extractor": FieldExtractor(use_ner=False),
+        "extractor": FieldExtractor(),
         "validator": InvoiceValidator(),
     }
 

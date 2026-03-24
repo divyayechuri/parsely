@@ -22,7 +22,7 @@ An end-to-end data engineering pipeline that parses invoice documents (PDF and t
   Upload (Streamlit)
        │
        ▼
-  Parse & Extract (Python, pdfplumber, regex, spaCy)
+  Parse & Extract (Python, pdfplumber, regex)
        │
        ▼
   Validate (10 business rules, confidence scoring)
@@ -41,7 +41,7 @@ An end-to-end data engineering pipeline that parses invoice documents (PDF and t
 | Layer | Tools |
 |-------|-------|
 | Parsing | Python, pdfplumber |
-| Extraction | spaCy NER, regex, Pydantic schemas |
+| Extraction | regex, Pydantic schemas |
 | Warehouse | Snowflake — Bronze, Silver, and Gold layers |
 | Transformations | dbt (8 SQL models + 32 data tests) |
 | Data Quality | Custom validation framework, dbt tests |
@@ -73,7 +73,7 @@ pytest tests/ -v --cov=src  # With coverage
 parsely/
 ├── src/
 │   ├── ingestion/       # PDF parsing (pdfplumber)
-│   ├── extraction/      # Field extraction (regex + spaCy NER)
+│   ├── extraction/      # Field extraction (regex)
 │   ├── validation/      # Data quality rules (10 business rules)
 │   ├── loading/         # Snowflake loader (Bronze, Silver, Gold)
 │   ├── summarization/   # Document insights generation

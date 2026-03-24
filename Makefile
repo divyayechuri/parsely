@@ -1,9 +1,8 @@
 .PHONY: setup run test lint dbt-run dbt-test airflow-up airflow-down clean help
 
 # ── Setup ─────────────────────────────────────────────
-setup:  ## Install dependencies and download NLP model
+setup:  ## Install dependencies
 	pip install -r requirements.txt
-	python -m spacy download en_core_web_sm
 
 # ── Run ───────────────────────────────────────────────
 run:  ## Start the Streamlit web app

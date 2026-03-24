@@ -2,7 +2,7 @@
 Tests for the main field extractor (orchestrator).
 
 Verifies the end-to-end extraction pipeline: raw text → InvoiceData.
-These are integration tests that exercise regex + NER together.
+These are integration tests that exercise the regex extraction pipeline.
 """
 
 import json
@@ -28,8 +28,7 @@ class TestFieldExtractor:
     """End-to-end extraction tests."""
 
     def setup_method(self):
-        # Disable NER for unit tests to avoid spaCy dependency
-        self.extractor = FieldExtractor(use_ner=False)
+        self.extractor = FieldExtractor()
 
     def test_returns_invoice_data(self):
         """Extractor should return an InvoiceData object."""

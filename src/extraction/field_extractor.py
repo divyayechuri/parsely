@@ -1,15 +1,13 @@
 """
 Main field extraction orchestrator.
 
-Coordinates regex and NER extractors to produce a complete InvoiceData
+Coordinates regex extractors to produce a complete InvoiceData
 object from raw document text. This is the single entry point that the
 rest of the pipeline calls.
 
 Strategy:
-    1. Run regex extraction first (fast, high precision for known patterns)
-    2. Run NER extraction (catches entities regex might miss)
-    3. Merge results — regex takes priority, NER fills gaps
-    4. Calculate confidence score based on field completion
+    1. Run regex extraction (fast, high precision for known patterns)
+    2. Calculate confidence score based on field completion
 
 Usage:
     extractor = FieldExtractor()
@@ -21,7 +19,6 @@ Usage:
 
 import structlog
 
-from src.extraction.ner_extractor import NERExtractor
 from src.extraction.regex_extractor import (
     extract_bill_to_info,
     extract_due_date,
@@ -43,27 +40,12 @@ class FieldExtractor:
     """
     Orchestrates field extraction from invoice text.
 
-    Combines regex-based and NER-based extraction, with regex taking
-    priority (it's more precise for structured fields). NER fills in
-    gaps where regex patterns don't match.
+    Uses regex-based extraction to identify and extract structured fields
+    from invoice documents.
     """
 
-    def __init__(self, use_ner: bool = True):
-        """
-        Args:
-            use_ner: Whether to use spaCy NER as a secondary extractor.
-                     Set to False for faster extraction without NER,
-                     or if spaCy is not installed.
-        """
-        self._use_ner = use_ner
-        self._ner = None
-
-        if use_ner:
-            try:
-                self._ner = NERExtractor()
-            except Exception:
-                logger.warning("ner_disabled", reason="spaCy model not available")
-                self._use_ner = False
+    def __init__(self):
+        pass
 
     def extract(self, text: str) -> InvoiceData:
         """
@@ -77,7 +59,7 @@ class FieldExtractor:
         """
         logger.info("extraction_started", text_length=len(text))
 
-        # ── Step 1: Regex extraction (primary) ────────────────
+        # ── Step 1: Regex extraction ──────────────────────
         invoice_number = extract_invoice_number(text)
         invoice_date = extract_invoice_date(text)
         due_date = extract_due_date(text)
@@ -89,11 +71,7 @@ class FieldExtractor:
         tax_rate, tax_amount = extract_tax(text)
         total = extract_total(text)
 
-        # ── Step 2: NER enrichment (secondary) ────────────────
-        if self._use_ner and self._ner:
-            self._enrich_with_ner(text, vendor)
-
-        # ── Step 3: Build the InvoiceData object ──────────────
+        # ── Step 2: Build the InvoiceData object ──────────
         invoice = InvoiceData(
             invoice_number=invoice_number,
             invoice_date=invoice_date,
@@ -109,7 +87,7 @@ class FieldExtractor:
             raw_text=text,
         )
 
-        # ── Step 4: Calculate confidence ──────────────────────
+        # ── Step 3: Calculate confidence ──────────────────
         invoice.parse_confidence = self._calculate_confidence(invoice)
 
         logger.info(
@@ -121,24 +99,6 @@ class FieldExtractor:
         )
 
         return invoice
-
-    def _enrich_with_ner(self, text: str, vendor):
-        """
-        Use NER to fill in vendor name if regex missed it.
-
-        NER is a fallback — regex is more reliable for structured invoices,
-        but NER can catch vendor names when the format is unexpected.
-        """
-        if vendor.name:
-            return  # Regex already found it, no need for NER
-
-        try:
-            candidates = self._ner.get_vendor_name_candidates(text)
-            if candidates:
-                vendor.name = candidates[0]
-                logger.info("vendor_name_from_ner", name=vendor.name)
-        except Exception as e:
-            logger.warning("ner_enrichment_failed", error=str(e))
 
     def _calculate_confidence(self, invoice: InvoiceData) -> float:
         """

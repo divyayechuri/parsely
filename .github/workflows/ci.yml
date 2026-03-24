@@ -41,7 +41,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pdfplumber python-docx Pillow fpdf2 spacy pydantic pandas polars snowflake-connector-python structlog python-dotenv pytest pytest-cov streamlit
+          pip install pdfplumber python-docx Pillow fpdf2 pydantic pandas polars snowflake-connector-python structlog python-dotenv pytest pytest-cov streamlit
 
       - name: Lint with flake8
         run: |

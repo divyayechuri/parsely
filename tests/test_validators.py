@@ -135,7 +135,7 @@ class TestValidationWithSampleData:
 
     def setup_method(self):
         from src.extraction.field_extractor import FieldExtractor
-        self.extractor = FieldExtractor(use_ner=False)
+        self.extractor = FieldExtractor()
         self.validator = InvoiceValidator()
 
     def test_sample_invoice_01_passes(self, sample_invoice_text):

@@ -89,7 +89,7 @@ class TestInvoiceSummarizer:
     def test_summary_with_sample_data(self, sample_invoice_text):
         """Test summarizer with actual extracted sample data."""
         from src.extraction.field_extractor import FieldExtractor
-        extractor = FieldExtractor(use_ner=False)
+        extractor = FieldExtractor()
         invoice = extractor.extract(sample_invoice_text)
         summary = self.summarizer.summarize(invoice)
         assert "INV-2026-001" in summary
