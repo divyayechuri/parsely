@@ -34,24 +34,19 @@ An end-to-end data engineering pipeline that parses invoice documents (PDF and t
   dbt Transform (8 models)   Streamlit Web App
   staging → intermediate     (Auto-fill Form + Insights)
        → marts (star schema)
-       │
-       ▼
-  Orchestrated by Apache Airflow (9-step DAG)
 ```
 
 ## Tech Stack
 
 | Layer | Tools |
 |-------|-------|
-| Parsing | Python, pdfplumber, fpdf2 |
+| Parsing | Python, pdfplumber |
 | Extraction | spaCy NER, regex, Pydantic schemas |
 | Warehouse | Snowflake — Bronze, Silver, and Gold layers |
 | Transformations | dbt (8 SQL models + 32 data tests) |
-| Orchestration | Apache Airflow |
 | Data Quality | Custom validation framework, dbt tests |
 | Frontend | Streamlit |
 | CI/CD | GitHub Actions (lint + test on 3 Python versions) |
-| Containerization | Docker, Docker Compose |
 
 ## Quick Start
 
@@ -63,10 +58,6 @@ pip install -r requirements.txt
 
 # Run the web app
 streamlit run src/app/streamlit_app.py
-
-# Or use Docker
-docker-compose up -d
-# App: http://localhost:8501 | Airflow: http://localhost:8080
 ```
 
 ## Run Tests
@@ -91,7 +82,6 @@ parsely/
 │   ├── staging/         # Clean interface over Silver layer
 │   ├── intermediate/    # Business logic & vendor deduplication
 │   └── marts/           # Star schema (dim + fact tables)
-├── airflow/dags/        # Pipeline orchestration DAG
 ├── snowflake/ddl/       # Database setup scripts
 ├── tests/               # 90 unit & integration tests
 └── data/samples/        # Sample invoices (PDF + text)
@@ -99,9 +89,9 @@ parsely/
 
 ## Roadmap
 
-**V1 (current)** — PDF invoice parsing, field extraction, Snowflake integration (Bronze/Silver/Gold), dbt models, Streamlit auto-fill form with edit tracking and insights, Airflow orchestration, CI/CD, Docker
+**V1 (current)** — PDF invoice parsing, field extraction, Snowflake integration (Bronze/Silver/Gold), dbt models, Streamlit auto-fill form with edit tracking and insights, CI/CD
 
-**V2** — LLM-powered summarization (Claude API), DOCX & OCR support, multiple document types, data lineage visualization, Terraform IaC
+**V2** — LLM-powered summarization (Claude API), DOCX & OCR support, multiple document types, data lineage visualization, Terraform IaC, Airflow orchestration, Docker containerization
 
 ## License
 
