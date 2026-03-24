@@ -15,6 +15,7 @@ An end-to-end data engineering pipeline that parses invoice documents (PDF and t
 5. **Load** through a medallion architecture (Bronze → Silver → Gold) in Snowflake
 6. **Transform** with dbt into a star schema (dimensions + facts)
 7. **View** document insights and recent submission history
+8. **Dashboard** — view key metrics, spend-by-vendor charts, and top line items from the Gold layer
 
 ## Architecture
 
@@ -32,7 +33,7 @@ An end-to-end data engineering pipeline that parses invoice documents (PDF and t
        │                     │
        ▼                     ▼
   dbt Transform (8 models)   Streamlit Web App
-  staging → intermediate     (Auto-fill Form + Insights)
+  staging → intermediate     (Upload + Form + Dashboard)
        → marts (star schema)
 ```
 
@@ -57,13 +58,13 @@ cd parsely
 pip install -r requirements.txt
 
 # Run the web app
-streamlit run src/app/streamlit_app.py
+streamlit run src/app/Upload_Invoice.py
 ```
 
 ## Run Tests
 
 ```bash
-pytest tests/ -v            # 90 unit & integration tests
+pytest tests/ -v            # 104 unit & integration tests
 pytest tests/ -v --cov=src  # With coverage
 ```
 
@@ -72,24 +73,30 @@ pytest tests/ -v --cov=src  # With coverage
 ```
 parsely/
 ├── src/
+│   ├── pipeline.py      # Pipeline orchestrator (PipelineResult, run, submit)
 │   ├── ingestion/       # PDF parsing (pdfplumber)
 │   ├── extraction/      # Field extraction (regex)
 │   ├── validation/      # Data quality rules (10 business rules)
 │   ├── loading/         # Snowflake loader (Bronze, Silver, Gold)
 │   ├── summarization/   # Document insights generation
-│   └── app/             # Streamlit web application
+│   └── app/
+│       ├── Upload_Invoice.py   # Main Streamlit page (upload, form, submit)
+│       └── pages/
+│           └── Dashboard.py    # Metrics, charts, tables from Gold layer
 ├── dbt/models/
 │   ├── staging/         # Clean interface over Silver layer
 │   ├── intermediate/    # Business logic & vendor deduplication
 │   └── marts/           # Star schema (dim + fact tables)
 ├── snowflake/ddl/       # Database setup scripts
-├── tests/               # 90 unit & integration tests
-└── data/samples/        # Sample invoices (PDF + text)
+├── tests/               # 104 unit & integration tests
+└── data/samples/
+    ├── *.pdf, *.txt     # Generated sample invoices
+    └── real_world/      # Real-world invoices (janitorial, electrical, catering)
 ```
 
 ## Roadmap
 
-**V1 (current)** — PDF invoice parsing, field extraction, Snowflake integration (Bronze/Silver/Gold), dbt models, Streamlit auto-fill form with edit tracking and insights, CI/CD
+**V1 (current)** — PDF invoice parsing, field extraction, Pipeline orchestrator, Snowflake integration (Bronze/Silver/Gold), dbt models, Streamlit multi-page app (Upload + Dashboard) with edit tracking and insights, real-world invoice testing, CI/CD
 
 **V2** — LLM-powered summarization (Claude API), DOCX & OCR support, multiple document types, data lineage visualization, Terraform IaC, Airflow orchestration, Docker containerization
 
